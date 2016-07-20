@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SPARTAN PVCU Data</title>
+</head>
+
+<body>
+<h2>Live Power Data from the ISS</h2>
+<p>This webpage populates the table below with real-time power data, pulled from the "ISS Live" server. Specifically, it interfaces with the Station, Power Articulation and Control (SPARTAN) Photovoltaic Control Unit (PVCU) to capture the drive voltages, drive currents, and beta gimbal assembly (BGA) positions for each of the 8 solar arrays on the ISS. It can be used to log power generation and consumption in order to get a better understanding of the Station's power behavior as it orbits around planet Earth. For a more graphical representation of this data, visit the <a href="http://isslive.com/displays/spartanDisplay1.html">SPARTAN Power Console Display</a>.</p>
+<p>The first row of the table is the "live" data. It changes as soon as a value is updated from the ISS Live server. Click on the 'Start Logging' button to begin logging. For each logging interval (specified by the input textbox below), a snapshot of the data is appended to the table (rows will be sorted ascendingly by time). The table can then be exported to a CSV file for further analysis by clicking on the 'Export Table to CSV' hyperlink.</p>
+<p>Note: Your data log may contain stale data. Make sure you have a stable Internet connection to connect to the ISS Live server. And be ready for any intermittent "no signal" connectivity issues with the ISS.</p>
+<br>
+
+<p style="font-size: 12px; ">Logging Interval in Seconds: <input style="width: 40px" type="text" id="logInterval" value="1"> (must be >=1)</p>
+<button id="start_btn" onclick="startLog()">Start Logging</button>
+<button id="stop_btn" onclick="stopLog()">Stop Logging</button>
+<a href="#" class="export">Export Table to CSV</a>
+<br>
+
+<div id="dvData">
+	<table id="live_table" border="1" cellpadding="5" style="font-size: 12px">
+		<tr>
+			<th></th>
+			<th id="TIME_000002"><font color=white/></th>
+			<th id="TIME_000001"></th>
+			<th colspan="3">Solar Array 1A</th>
+			<th colspan="3">Solar Array 1B</th>
+			<th colspan="3">Solar Array 2A</th>
+			<th colspan="3">Solar Array 2B</th>
+			<th colspan="3">Solar Array 3A</th>
+			<th colspan="3">Solar Array 3B</th>
+			<th colspan="3">Solar Array 4A</th>
+			<th colspan="3">Solar Array 4B</th>
+			<th colspan="2">Joint Angle Position</th>
+		</tr>
+		<tr id="table_headers">
+			<td align="center" id="#">#</td>
+			<td align="center" id="hdr_date">Date (UTC)</td>
+			<td align="center" id="hdr_time">Time (UTC)</td>
+			<td align="center" id="hdr_v_1a">Voltage (V)</td>
+			<td align="center" id="hdr_i_1a">Current (A)</td>
+			<td align="center" id="hdr_p_1a">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_1b">Voltage (V)</td>
+			<td align="center" id="hdr_i_1b">Current (A)</td>
+			<td align="center" id="hdr_p_1b">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_2a">Voltage (V)</td>
+			<td align="center" id="hdr_i_2a">Current (A)</td>
+			<td align="center" id="hdr_p_2a">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_2b">Voltage (V)</td>
+			<td align="center" id="hdr_i_2b">Current (A)</td>
+			<td align="center" id="hdr_p_2b">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_3a">Voltage (V)</td>
+			<td align="center" id="hdr_i_3a">Current (A)</td>
+			<td align="center" id="hdr_p_3a">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_3b">Voltage (V)</td>
+			<td align="center" id="hdr_i_3b">Current (A)</td>
+			<td align="center" id="hdr_p_3b">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_4a">Voltage (V)</td>
+			<td align="center" id="hdr_i_4a">Current (A)</td>
+			<td align="center" id="hdr_p_4a">BGA Pos (deg)</td>
+			<td align="center" id="hdr_v_4b">Voltage (V)</td>
+			<td align="center" id="hdr_i_4b">Current (A)</td>
+			<td align="center" id="hdr_p_4b">BGA Pos (deg)</td>
+			<td align="center" id="hdr_star_pos">Starboard Pos (deg)</td>
+			<td align="center" id="hdr_port_pos">Port Pos (deg)</td>
+		</tr>
+		<tr id="live_values">
+			<td id="line_number" class="live_line_number">LIVE</td>
+			<!-- GMT Epoch Time Stamp -->
+			<td id="human_date"></td>
+			<td id="human_time"></td>
+
+			<!-- Solar Array 1A -->
+			<td id="S4000001"></td>
+			<td id="S4000002"></td>
+			<td id="S4000007"></td>
+
+			<!-- Solar Array 1B -->
+			<td id="S6000004"></td>
+			<td id="S6000005"></td>
+			<td id="S6000008"></td>
+
+			<!-- Solar Array 2A -->
+			<td id="P4000001"></td>
+			<td id="P4000002"></td>
+			<td id="P4000007"></td>
+
+			<!-- Solar Array 2B -->
+			<td id="P6000004"></td>
+			<td id="P6000005"></td>
+			<td id="P6000008"></td>
+
+			<!-- Solar Array 3A -->
+			<td id="S4000004"></td>
+			<td id="S4000005"></td>
+			<td id="S4000008"></td>
+
+			<!-- Solar Array 3B -->
+			<td id="S6000001"></td>
+			<td id="S6000002"></td>
+			<td id="S6000007"></td>
+
+			<!-- Solar Array 4A -->
+			<td id="P4000004"></td>
+			<td id="P4000005"></td>
+			<td id="P4000008"></td>
+
+			<!-- Solar Array 4B -->
+			<td id="P6000001"></td>
+			<td id="P6000002"></td>
+			<td id="P6000007"></td>
+
+			<!-- Solar Alpha Rotary Joint Angle Positions -->
+			<td id="S0000003"></td>
+			<td id="S0000004"></td>
+		</tr>
+	</table>
+</div>
+
+<script src="https://demos.lightstreamer.com/commons/require.js"></script>
+<script src="https://demos.lightstreamer.com/commons/lightstreamer.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+<script>
+require(["LightstreamerClient", "Subscription"],function(LightstreamerClient, Subscription) {
+// require(["LightstreamerClient", "StatusWidget", "Subscription"],function(LightstreamerClient, StatusWidget, Subscription) {
+	var client = new LightstreamerClient("https://push.lightstreamer.com","ISSLIVE");
+	// client.addListener(new StatusWidget("left", "50%"));
+	client.connect();
+	
+	var sub = new Subscription("MERGE",["TIME_000002", "TIME_000001", "S4000001","S4000002","S4000007","S6000004","S6000005","S6000008", "P4000001","P4000002","P4000007","P6000004","P6000005","P6000008", "S4000004","S4000005","S4000008","S6000001","S6000002","S6000007", "P4000004","P4000005","P4000008","P6000001","P6000002","P6000007","S0000003","S0000004"],["Value"]);
+	client.subscribe(sub);
+	
+	sub.addListener({
+		onItemUpdate: function(update) {
+			$("#"+update.getItemName()).text(update.getValue("Value"));
+
+			// Format and display time from Epoch to human readable
+			// figure out how to execute this function once/second instead of every time an item is updated
+			if (Number(document.getElementById("TIME_000001").innerHTML) > 0) {
+				var human_readable_date = new Date(Number(document.getElementById("TIME_000001").innerHTML));
+				human_readable_date.setUTCFullYear(Number(document.getElementById("TIME_000002").innerHTML));
+				var year_utc = human_readable_date.getUTCFullYear();
+				var month_utc = human_readable_date.getUTCMonth();
+				var date_utc = human_readable_date.getUTCDate();
+				var hours_utc = human_readable_date.getUTCHours();
+				var minutes_utc = human_readable_date.getUTCMinutes();
+				if (minutes_utc < 10) minutes_utc = "0"+minutes_utc;
+				var seconds_utc = human_readable_date.getUTCSeconds();
+				if (seconds_utc <10) seconds_utc = "0"+seconds_utc;
+				var date_string = String(month_utc+1)+"/"+String(date_utc)+"/"+String(year_utc);
+				var time_string = String(hours_utc)+":"+String(minutes_utc)+":"+String(seconds_utc);
+				document.getElementById("human_date").innerHTML = date_string;
+				document.getElementById("human_time").innerHTML = time_string;
+			}
+		}
+	});
+
+	// sub.addListener({
+	// 	onSubscriptionError: 
+	// 		//display error message
+	// 		//ask to save data or refresh
+	// });
+});
+</script>
+
+<script>
+var line_number = 0;
+var line_number_id = 'line_number';
+var line_number_str = 'line_number';
+var dataLogging;
+
+function startLog(){
+	var logInterval = document.getElementById('logInterval').value;
+	if(logInterval < 1){
+		alert('Error! The logging interval must be greater than 1 second.');
+		return;
+	}
+	else {
+		var logInterval_ms = logInterval * 1000;
+		dataLogging = setInterval(function(){
+			// Increment line number
+			document.getElementById(line_number_id).innerHTML = ++line_number;
+			document.getElementById(line_number_id).id = line_number_str+line_number;
+			line_number_id = line_number_str+line_number;
+
+			// Clone row to show data log history
+			var new_row = $("#live_values").clone();
+		    new_row.appendTo($("#live_table"));
+		}, logInterval_ms);
+	}	
+}
+
+function stopLog(){
+	clearTimeout(dataLogging);
+	alert('Data logging has halted. Click on the "Export Table to CSV" hyperlink to save or the "Start Logging" button to log more data.');
+}
+
+function exportTableToCSV($table, filename) {
+    var $rows = $table.find('tr:has(td)'),
+        // Temporary delimiter characters unlikely to be typed by keyboard
+        // This is to avoid accidentally splitting the actual contents
+        tmpColDelim = String.fromCharCode(11), // vertical tab character
+        tmpRowDelim = String.fromCharCode(0), // null character
+
+        // actual delimiter characters for CSV format
+        colDelim = '","',
+        rowDelim = '"\r\n"',
+
+        // Grab text from table into CSV formatted string
+        csv = '"' + $rows.map(function (i, row) {
+            var $row = $(row),
+                $cols = $row.find('td');
+
+            return $cols.map(function (j, col) {
+                var $col = $(col),
+                    text = $col.text();
+
+                return text.replace(/"/g, '""'); // escape double quotes
+
+            }).get().join(tmpColDelim);
+
+        }).get().join(tmpRowDelim)
+            .split(tmpRowDelim).join(rowDelim)
+            .split(tmpColDelim).join(colDelim) + '"',
+
+        // Data URI
+        csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+    $(this)
+        .attr({
+        'download': filename,
+            'href': csvData,
+            'target': '_blank'
+    });
+}
+
+$(".export").on('click', function (event) {
+    // Remove LIVE data row from table
+	document.getElementById("live_table").deleteRow(2);
+
+	// Rename column headers
+	document.getElementById("hdr_v_1a").innerHTML = "Solar Array 1A - Drive Voltage (V)"
+	document.getElementById("hdr_i_1a").innerHTML = "Solar Array 1A - Drive Current (A)"
+	document.getElementById("hdr_p_1a").innerHTML = "Solar Array 1A - BGA Position (degrees)"
+	document.getElementById("hdr_v_1b").innerHTML = "Solar Array 1B - Drive Voltage (V)"
+	document.getElementById("hdr_i_1b").innerHTML = "Solar Array 1B - Drive Current (A)"
+	document.getElementById("hdr_p_1b").innerHTML = "Solar Array 1B - BGA Position (degrees)"
+	document.getElementById("hdr_v_2a").innerHTML = "Solar Array 2A - Drive Voltage (V)"
+	document.getElementById("hdr_i_2a").innerHTML = "Solar Array 2A - Drive Current (A)"
+	document.getElementById("hdr_p_2a").innerHTML = "Solar Array 2A - BGA Position (degrees)"
+	document.getElementById("hdr_v_2b").innerHTML = "Solar Array 2B - DDrive Voltage (V)"
+	document.getElementById("hdr_i_2b").innerHTML = "Solar Array 2B - DDrive Current (A)"
+	document.getElementById("hdr_p_2b").innerHTML = "Solar Array 2B - DBGA Position (degrees)"
+	document.getElementById("hdr_v_3a").innerHTML = "Solar Array 3A - Drive Voltage (V)"
+	document.getElementById("hdr_i_3a").innerHTML = "Solar Array 3A - Drive Current (A)"
+	document.getElementById("hdr_p_3a").innerHTML = "Solar Array 3A - BGA Position (degrees)"
+	document.getElementById("hdr_v_3b").innerHTML = "Solar Array 3B - Drive Voltage (V)"
+	document.getElementById("hdr_i_3b").innerHTML = "Solar Array 3B - Drive Current (A)"
+	document.getElementById("hdr_p_3b").innerHTML = "Solar Array 3B - BGA Position (degrees)"
+	document.getElementById("hdr_v_4a").innerHTML = "Solar Array 4A - Drive Voltage (V)"
+	document.getElementById("hdr_i_4a").innerHTML = "Solar Array 4A - Drive Current (A)"
+	document.getElementById("hdr_p_4a").innerHTML = "Solar Array 4A - BGA Position (degrees)"
+	document.getElementById("hdr_v_4b").innerHTML = "Solar Array 4B - DDrive Voltage (V)"
+	document.getElementById("hdr_i_4b").innerHTML = "Solar Array 4B - DDrive Current (A)"
+	document.getElementById("hdr_p_4b").innerHTML = "Solar Array 4B - DBGA Position (degrees)"
+	document.getElementById("hdr_star_pos").innerHTML = "Starboard Joint Angle Position (degrees)"
+	document.getElementById("hdr_port_pos").innerHTML = "Port Joint Angle Position (degrees)"
+
+	// Export to CSV
+    exportTableToCSV.apply(this, [$('#dvData>table'), 'spartan_data_log_'+new Date().getTime()+'.csv']);
+});
+</script>
+
+</body>
+
+</html>
