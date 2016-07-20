@@ -11,7 +11,7 @@
 <p>Note: Your data log may contain stale data. Make sure you have a stable Internet connection to connect to the ISS Live server. And be ready for any intermittent "no signal" connectivity issues with the ISS.</p>
 <br>
 
-<p style="font-size: 12px; ">Logging Interval in Seconds: <input style="width: 40px" type="text" id="logInterval" value="1"> (must be >=1)</p>
+<p style="font-size: 12px; ">Logging Interval in Seconds: <input style="width: 40px" type="text" id="logInterval" value="10"> (must be >=1)</p>
 <button id="start_btn" onclick="startLog()">Start Logging</button>
 <button id="stop_btn" onclick="stopLog()">Stop Logging</button>
 <a href="#" class="export">Export Table to CSV</a>
@@ -20,7 +20,7 @@
 <div id="dvData">
 	<table id="live_table" border="1" cellpadding="5" style="font-size: 12px">
 		<tr>
-			<th></th>
+			<th id="running_count"></th>
 			<th id="TIME_000002"><font color=white/></th>
 			<th id="TIME_000001"></th>
 			<th colspan="3">Solar Array 1A</th>
@@ -171,7 +171,7 @@ var line_number_str = 'line_number';
 var dataLogging;
 
 function startLog(){
-	var logInterval = document.getElementById('logInterval').value;
+	var logInterval = document.getElementById("logInterval").value;
 	if(logInterval < 1){
 		alert('Error! The logging interval must be greater than 1 second.');
 		return;
@@ -183,10 +183,16 @@ function startLog(){
 			document.getElementById(line_number_id).innerHTML = ++line_number;
 			document.getElementById(line_number_id).id = line_number_str+line_number;
 			line_number_id = line_number_str+line_number;
+			document.getElementById("running_count").innerHTML = line_number;
+
 
 			// Clone row to show data log history
 			var new_row = $("#live_values").clone();
 		    new_row.appendTo($("#live_table"));
+
+		    // Set live number back to "LIVE"
+		    document.getElementsByClassName("live_line_number")[0].innerHTML = "LIVE";
+
 		}, logInterval_ms);
 	}	
 }
@@ -237,7 +243,7 @@ function exportTableToCSV($table, filename) {
 
 $(".export").on('click', function (event) {
     // Remove LIVE data row from table
-	document.getElementById("live_table").deleteRow(2);
+	// document.getElementById("live_table").deleteRow(2);
 
 	// Rename column headers
 	document.getElementById("hdr_v_1a").innerHTML = "Solar Array 1A - Drive Voltage (V)"
