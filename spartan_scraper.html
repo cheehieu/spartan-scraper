@@ -8,6 +8,7 @@
 <h2>Live Power Data from the ISS</h2>
 <p>This webpage populates the table below with real-time power data, pulled from the "ISS Live" server. Specifically, it interfaces with the Station, Power Articulation and Control (SPARTAN) Photovoltaic Control Unit (PVCU) to capture the drive voltages, drive currents, and beta gimbal assembly (BGA) positions for each of the 8 solar arrays on the ISS. It can be used to log power generation and consumption in order to get a better understanding of the Station's power behavior as it orbits around planet Earth. For a more graphical representation of this data, visit the <a href="http://isslive.com/displays/spartanDisplay1.html">SPARTAN Power Console Display</a>.</p>
 <p>The first row of the table is the "live" data. It changes as soon as a value is updated from the ISS Live server. Click on the 'Start Logging' button to begin logging. For each logging interval (specified by the input textbox below), a snapshot of the data is appended to the table (rows will be sorted ascendingly by time). The table can then be exported to a CSV file for further analysis by clicking on the 'Export Table to CSV' hyperlink.</p>
+<p>Additional fields for the ISS orbital position are now included. See <a href="http://isslive.com/displays/adcoDisplay1.html">ADCO Orbital Position Display</a> for more information. This data seems to be published once every 10 seconds.</p>
 <p>Note: Your data log may contain stale data. Make sure you have a stable Internet connection to connect to the ISS Live server. And be ready for any intermittent "no signal" connectivity issues with the ISS.</p>
 <br>
 
@@ -32,6 +33,7 @@
 			<th colspan="3">Solar Array 4A</th>
 			<th colspan="3">Solar Array 4B</th>
 			<th colspan="2">Joint Angle Position</th>
+			<th colspan="7">ISS ADCO Orbital Position</th>
 		</tr>
 		<tr id="table_headers">
 			<td align="center" id="#">#</td>
@@ -63,6 +65,13 @@
 			<td align="center" id="hdr_p_4b">BGA Pos (deg)</td>
 			<td align="center" id="hdr_star_pos">Starboard Pos (deg)</td>
 			<td align="center" id="hdr_port_pos">Port Pos (deg)</td>
+			<td align="center" id="hdr_sba">Solar Beta Angle</td>
+			<td align="center" id="hdr_svp_x">State Vector Position X (km)</td>
+			<td align="center" id="hdr_svp_y">State Vector Position Y (km)</td>
+			<td align="center" id="hdr_svp_z">State Vector Position Z (km)</td>
+			<td align="center" id="hdr_svv_x">State Vector Velocity X (m/s)</td>
+			<td align="center" id="hdr_svv_y">State Vector Velocity Y (m/s)</td>
+			<td align="center" id="hdr_svv_z">State Vector Velocity Z (m/s)</td>
 		</tr>
 		<tr id="live_values">
 			<td id="line_number" class="live_line_number">LIVE</td>
@@ -113,6 +122,21 @@
 			<!-- Solar Alpha Rotary Joint Angle Positions -->
 			<td id="S0000003"></td>
 			<td id="S0000004"></td>
+
+			<!-- ISS Orbital Position -->
+			<!-- Solar Beta Angle -->
+			<td id="USLAB000040"></td>
+
+			<!-- State Vector Position -->
+			<td id="USLAB000032"></td>
+			<td id="USLAB000033"></td>
+			<td id="USLAB000034"></td>
+
+			<!-- State Vector Velocity -->
+			<td id="USLAB000035"></td>
+			<td id="USLAB000036"></td>
+			<td id="USLAB000037"></td>
+
 		</tr>
 	</table>
 </div>
@@ -128,7 +152,8 @@ require(["LightstreamerClient", "Subscription"],function(LightstreamerClient, Su
 	// client.addListener(new StatusWidget("left", "50%"));
 	client.connect();
 	
-	var sub = new Subscription("MERGE",["TIME_000002", "TIME_000001", "S4000001","S4000002","S4000007","S6000004","S6000005","S6000008", "P4000001","P4000002","P4000007","P6000004","P6000005","P6000008", "S4000004","S4000005","S4000008","S6000001","S6000002","S6000007", "P4000004","P4000005","P4000008","P6000001","P6000002","P6000007","S0000003","S0000004"],["Value"]);
+	var sub = new Subscription("MERGE",["TIME_000002", "TIME_000001", "S4000001", "S4000002", "S4000007", "S6000004", "S6000005", "S6000008", "P4000001", "P4000002", "P4000007", "P6000004", "P6000005", "P6000008", "S4000004", "S4000005", "S4000008", "S6000001", "S6000002", "S6000007", "P4000004","P4000005", "P4000008", "P6000001", "P6000002", "P6000007", "S0000003", "S0000004", "USLAB000040", "USLAB000032", "USLAB000033", "USLAB000034", "USLAB000035", "USLAB000036", "USLAB000037"], ["Value"]);
+			
 	client.subscribe(sub);
 	
 	sub.addListener({
